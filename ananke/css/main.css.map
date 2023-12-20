@@ -1,7 +1,7 @@
 {
 	"version": 3,
 	"file": "main.css",
-	"sourceRoot": "C:/Projects/hugo/quickstart",
+	"sourceRoot": "C:/Projects/hugo/hugo-drpeterrobinson-source",
 	"sources": [
 		"ananke/css/main.css"
 	],
