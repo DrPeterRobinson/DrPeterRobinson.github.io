@@ -1,19 +1,31 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on My New Hugo Site</title>
-    <link>https://example.org/posts/</link>
-    <description>Recent content in Posts on My New Hugo Site</description>
+    <title>Posts on Vaguely Interesting</title>
+    <link>https://drpeterrobinson.github.io/posts/</link>
+    <description>Recent content in Posts on Vaguely Interesting</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    <lastBuildDate>Wed, 20 Dec 2023 09:33:17 +0000</lastBuildDate>
-    <atom:link href="https://example.org/posts/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-GB</language>
+    <lastBuildDate>Wed, 20 Dec 2023 16:31:29 +0000</lastBuildDate><atom:link href="https://drpeterrobinson.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>My First Post</title>
-      <link>https://example.org/posts/my-first-post/</link>
-      <pubDate>Wed, 20 Dec 2023 09:33:17 +0000</pubDate>
-      <guid>https://example.org/posts/my-first-post/</guid>
-      <description>Is this Markdown working? Module Cohort Labs Demonstrators 600100 17 7 1 601097 15 7 1 551529 18 $$a=\frac{c}{d}$$</description>
+      <title>ROS1 Docker tutorial</title>
+      <link>https://drpeterrobinson.github.io/posts/ros1-docker-tutorial/</link>
+      <pubDate>Wed, 20 Dec 2023 16:31:29 +0000</pubDate>
+      
+      <guid>https://drpeterrobinson.github.io/posts/ros1-docker-tutorial/</guid>
+      <description>This is a walkthrough of the standard ROS1 tutorial using the WSL2 docker image prepared in the previous post.
+If you&amp;rsquo;ve followed the previous tutorial, your docker volume should have a folder structure which looks something like this:
+o l u m e b d s u e r i v c l e d l - C M a k e L i s t s . t x t File structureIn a running container, the top level will be mapped to /root/Ros1Test.</description>
     </item>
+    
+    <item>
+      <title>ROS, Docker and WSL</title>
+      <link>https://drpeterrobinson.github.io/posts/ros-wsl-docker-sim/</link>
+      <pubDate>Wed, 20 Dec 2023 11:44:29 +0000</pubDate>
+      
+      <guid>https://drpeterrobinson.github.io/posts/ros-wsl-docker-sim/</guid>
+      <description>ROS1 is not very well supported in Windows, but it is very useful to be able to do robot simulation on a desktop PC even when Linux systems are not available. The best way I&amp;rsquo;ve found to do this is by combining the power of WSL2 (the Windows Subsystem for Linux) and Docker containers to run allow ROS to run in Linux with minimal overhead. It&amp;rsquo;s even possible to run the graphical applications such as Gazebo and RViz for simulation purposes.</description>
+    </item>
+    
   </channel>
 </rss>

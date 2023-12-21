@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>ROS1 Docker tutorial | Vaguely Interesting</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="This is a walkthrough of the standard ROS1 tutorial using the WSL2 docker image prepared in the previous post.
+If you&rsquo;ve followed the previous tutorial, your docker volume should have a folder structure which looks something like this:
+o l u m e b d s u e r i v c l e d l - C M a k e L i s t s . t x t File structureIn a running container, the top level will be mapped to /root/Ros1Test.">
+    <meta name="generator" content="Hugo 0.119.0">
+    
+    
+    
+    
+      <meta name="robots" content="noindex, nofollow">
+    
+
+    
+<link rel="stylesheet" href="/ananke/css/main.min.css" >
+
+
+
+    
+
+    
+      
+
+    
+
+    
+
+    
+      <link rel="canonical" href="https://drpeterrobinson.github.io/posts/ros1-docker-tutorial/">
+    
+
+    <meta property="og:title" content="ROS1 Docker tutorial" />
+<meta property="og:description" content="This is a walkthrough of the standard ROS1 tutorial using the WSL2 docker image prepared in the previous post.
+If you&rsquo;ve followed the previous tutorial, your docker volume should have a folder structure which looks something like this:
+o l u m e b d s u e r i v c l e d l - C M a k e L i s t s . t x t File structureIn a running container, the top level will be mapped to /root/Ros1Test." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://drpeterrobinson.github.io/posts/ros1-docker-tutorial/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-12-20T16:31:29+00:00" />
+<meta property="article:modified_time" content="2023-12-20T16:31:29+00:00" />
+<meta itemprop="name" content="ROS1 Docker tutorial">
+<meta itemprop="description" content="This is a walkthrough of the standard ROS1 tutorial using the WSL2 docker image prepared in the previous post.
+If you&rsquo;ve followed the previous tutorial, your docker volume should have a folder structure which looks something like this:
+o l u m e b d s u e r i v c l e d l - C M a k e L i s t s . t x t File structureIn a running container, the top level will be mapped to /root/Ros1Test."><meta itemprop="datePublished" content="2023-12-20T16:31:29+00:00" />
+<meta itemprop="dateModified" content="2023-12-20T16:31:29+00:00" />
+<meta itemprop="wordCount" content="527">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="ROS1 Docker tutorial"/>
+<meta name="twitter:description" content="This is a walkthrough of the standard ROS1 tutorial using the WSL2 docker image prepared in the previous post.
+If you&rsquo;ve followed the previous tutorial, your docker volume should have a folder structure which looks something like this:
+o l u m e b d s u e r i v c l e d l - C M a k e L i s t s . t x t File structureIn a running container, the top level will be mapped to /root/Ros1Test."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Vaguely Interesting
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+<div class="ananke-socials">
+  
+</div>
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked ttu">
+          
+        Posts
+      </aside>
+      
+
+
+
+
+
+
+
+
+
+
+  <div id="sharing" class="mt3 ananke-socials">
+    
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">ROS1 Docker tutorial</h1>
+      
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2023-12-20T16:31:29Z">December 20, 2023</time>
+      
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links mid-gray pr4-l w-two-thirds-l"><p>This is a walkthrough of the <a href="https://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28python%29">standard ROS1 tutorial</a> using the WSL2 docker image prepared in the <a href="/posts/ros-wsl-docker-sim/">previous post</a>.</p>
+<p>If you&rsquo;ve followed the previous tutorial, your docker volume should have a folder structure which looks something like this:</p>
+
+
+
+
+<figure id="diagram-1">
+  
+    <svg class="foo" width="264" height="73"  xmlns="http://www.w3.org/2000/svg" version="1.1">
+      <g transform='translate(8,16)'>
+<path d='M 64,0 L 72,0' fill='none' stroke='currentColor'></path>
+<path d='M 72,16 L 80,16' fill='none' stroke='currentColor'></path>
+<path d='M 72,32 L 80,32' fill='none' stroke='currentColor'></path>
+<path d='M 72,48 L 80,48' fill='none' stroke='currentColor'></path>
+<path d='M 72,0 L 72,16' fill='none' stroke='currentColor'></path>
+<path d='M 72,16 L 72,32' fill='none' stroke='currentColor'></path>
+<path d='M 72,32 L 72,48' fill='none' stroke='currentColor'></path>
+<polygon points='16.000000,0.000000 4.000000,-5.600000 4.000000,5.600000' fill='currentColor' transform='rotate(90.000000, 8.000000, 0.000000)'></polygon>
+<text text-anchor='middle' x='16' y='4' fill='currentColor' style='font-size:1em'>o</text>
+<text text-anchor='middle' x='24' y='4' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='32' y='4' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='40' y='4' fill='currentColor' style='font-size:1em'>m</text>
+<text text-anchor='middle' x='48' y='4' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='96' y='20' fill='currentColor' style='font-size:1em'>b</text>
+<text text-anchor='middle' x='96' y='36' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='96' y='52' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='104' y='20' fill='currentColor' style='font-size:1em'>u</text>
+<text text-anchor='middle' x='104' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='104' y='52' fill='currentColor' style='font-size:1em'>r</text>
+<text text-anchor='middle' x='112' y='20' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='112' y='36' fill='currentColor' style='font-size:1em'>v</text>
+<text text-anchor='middle' x='112' y='52' fill='currentColor' style='font-size:1em'>c</text>
+<text text-anchor='middle' x='120' y='20' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='120' y='36' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='128' y='20' fill='currentColor' style='font-size:1em'>d</text>
+<text text-anchor='middle' x='128' y='36' fill='currentColor' style='font-size:1em'>l</text>
+<text text-anchor='middle' x='128' y='52' fill='currentColor' style='font-size:1em'>-</text>
+<text text-anchor='middle' x='144' y='52' fill='currentColor' style='font-size:1em'>C</text>
+<text text-anchor='middle' x='152' y='52' fill='currentColor' style='font-size:1em'>M</text>
+<text text-anchor='middle' x='160' y='52' fill='currentColor' style='font-size:1em'>a</text>
+<text text-anchor='middle' x='168' y='52' fill='currentColor' style='font-size:1em'>k</text>
+<text text-anchor='middle' x='176' y='52' fill='currentColor' style='font-size:1em'>e</text>
+<text text-anchor='middle' x='184' y='52' fill='currentColor' style='font-size:1em'>L</text>
+<text text-anchor='middle' x='192' y='52' fill='currentColor' style='font-size:1em'>i</text>
+<text text-anchor='middle' x='200' y='52' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='208' y='52' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='216' y='52' fill='currentColor' style='font-size:1em'>s</text>
+<text text-anchor='middle' x='224' y='52' fill='currentColor' style='font-size:1em'>.</text>
+<text text-anchor='middle' x='232' y='52' fill='currentColor' style='font-size:1em'>t</text>
+<text text-anchor='middle' x='240' y='52' fill='currentColor' style='font-size:1em'>x</text>
+<text text-anchor='middle' x='248' y='52' fill='currentColor' style='font-size:1em'>t</text>
+</g>
+
+    </svg>
+  
+  <figcaption>File structure</figcaption>
+</figure>
+
+<p>In a running container, the top level will be mapped to <code>/root/Ros1Test</code>.  To create the required new folders and files, you can work from Visual Studio Code or from the command line inside the Docker container.  Or mix both.  It&rsquo;s the same file system.</p>
+<p>Let&rsquo;s start by working in the container.  Make sure you&rsquo;ve got it running by using &lsquo;docker compose up&rsquo; and then open another terminal window and connect a new session to the same container: <code>docker exec -it r1_limo_n bash</code>.  This will run a new shell on the same Docker container.  You might want to <code>source \opt\ros\noetic\setup.bash</code> at this point.  Now <code>cd /root/Ros1Test/src</code>, and you&rsquo;re ready to follow the standard tutorial.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cd /root/Ros1Test/src
+</span></span><span style="display:flex;"><span>catkin_create_pkg test_package std_msgs rospy roscpp
+</span></span><span style="display:flex;"><span>cd ..
+</span></span><span style="display:flex;"><span>catkin_make
+</span></span><span style="display:flex;"><span>cd test_package
+</span></span><span style="display:flex;"><span>mkdir scripts
+</span></span></code></pre></div><p>Now you need to create the python script files for talker and listener, and then edit the CMakeLists.txt to encourage catkin to include them in its build.  Let&rsquo;s do this with Visual Studio Code.  Using the Docker extension, explore the volume in a dev container (right-click on the volume and select &ldquo;Explore in a dev container&rdquo;).  In the &lsquo;scripts&rsquo; folder you just created, add the new files &ldquo;listener.py&rdquo; and &ldquo;talker.py&rdquo;:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/env python3</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># this file is listener.py</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> rospy
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> std_msgs.msg <span style="color:#f92672">import</span> String
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">callback</span>(data):
+</span></span><span style="display:flex;"><span>    rospy<span style="color:#f92672">.</span>loginfo(rospy<span style="color:#f92672">.</span>get_caller_id() <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;I heard </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span>, data<span style="color:#f92672">.</span>data)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">listener</span>():
+</span></span><span style="display:flex;"><span>    rospy<span style="color:#f92672">.</span>init_node(<span style="color:#e6db74">&#39;listener&#39;</span>, anonymous<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    rospy<span style="color:#f92672">.</span>Subscriber(<span style="color:#e6db74">&#34;chatter&#34;</span>, String, callback)
+</span></span><span style="display:flex;"><span>    rospy<span style="color:#f92672">.</span>spin()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    listener()
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/env python3</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># This file is talker.py</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> rospy
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> std_msgs.msg <span style="color:#f92672">import</span> String
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">talker</span>():
+</span></span><span style="display:flex;"><span>    pub <span style="color:#f92672">=</span> rospy<span style="color:#f92672">.</span>Publisher(<span style="color:#e6db74">&#39;chatter&#39;</span>, String, queue_size<span style="color:#f92672">=</span><span style="color:#ae81ff">10</span>)
+</span></span><span style="display:flex;"><span>    rospy<span style="color:#f92672">.</span>init_node(<span style="color:#e6db74">&#39;talker&#39;</span>, anonymous<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    rate <span style="color:#f92672">=</span> rospy<span style="color:#f92672">.</span>Rate(<span style="color:#ae81ff">10</span>) <span style="color:#75715e"># 10hz</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> <span style="color:#f92672">not</span> rospy<span style="color:#f92672">.</span>is_shutdown():
+</span></span><span style="display:flex;"><span>        hello_str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;hello world </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">%</span> rospy<span style="color:#f92672">.</span>get_time()
+</span></span><span style="display:flex;"><span>        rospy<span style="color:#f92672">.</span>loginfo(hello_str)
+</span></span><span style="display:flex;"><span>        pub<span style="color:#f92672">.</span>publish(hello_str)
+</span></span><span style="display:flex;"><span>        rate<span style="color:#f92672">.</span>sleep()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        talker()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> rospy<span style="color:#f92672">.</span>ROSInterruptException:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span></code></pre></div><p>Then edit the <code>CMakeLists.txt</code> file in the <code>src</code> folder, adding this at the end:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cmake" data-lang="cmake"><span style="display:flex;"><span>catkin_install_python(<span style="color:#e6db74">PROGRAMS</span> <span style="color:#e6db74">scripts/talker.py</span> <span style="color:#e6db74">scripts/listener.py</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">DESTINATION</span> <span style="color:#f92672">${</span>CATKIN_PACKAGE_BIN_DESTINATION<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>)<span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>Now the package is ready to build.  Go back to the command shell in the docker window and make the package:</p>
+<pre tabindex="0"><code>cd /root/Ros1Test/src/test_package
+catkin_make
+</code></pre><p>Assuming all is well, it should now be possible to test the talker and the listener.  In the Docker shell you&rsquo;ve already got open, start the ROS core process by entering <code>roscore</code>.  This will tie up that window until you use Ctrl-C to exit, so we&rsquo;ll open up new windows for the talker and the listener.  Start up two new terminal windows, and in each of them issue the command <code>docker exec -it r1_limo_n bash</code>.  Now you&rsquo;ve got two noew shell into the same Docker container.  In one, run the talker:</p>
+<pre tabindex="0"><code>cd /root/test
+source devel/setup.bash
+rosrun test_package talker.py
+</code></pre><p>And in the other run the listener:</p>
+<pre tabindex="0"><code>cd /root/test
+source devel/setup.bash
+rosrun test_package listener.py
+</code></pre><p>That&rsquo;s it.  You now have ROS 1 running in a container on Windows, running nodes you&rsquo;ve just created.</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
+
+    <aside class="w-30-l mt6-l">
+
+
+
+
+</aside>
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://drpeterrobinson.github.io/" >
+    &copy;  Vaguely Interesting 2023 
+  </a>
+    <div>
+<div class="ananke-socials">
+  
+</div>
+</div>
+  </div>
+</footer>
+
+  </body>
+</html>

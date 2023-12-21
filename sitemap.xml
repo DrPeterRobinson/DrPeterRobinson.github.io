@@ -2,10 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://example.org/categories/</loc>
+    <loc>https://drpeterrobinson.github.io/posts/</loc>
+    <lastmod>2023-12-20T16:31:29+00:00</lastmod>
   </url><url>
-    <loc>https://example.org/</loc>
+    <loc>https://drpeterrobinson.github.io/posts/ros1-docker-tutorial/</loc>
+    <lastmod>2023-12-20T16:31:29+00:00</lastmod>
   </url><url>
-    <loc>https://example.org/tags/</loc>
+    <loc>https://drpeterrobinson.github.io/</loc>
+    <lastmod>2023-12-20T16:31:29+00:00</lastmod>
+  </url><url>
+    <loc>https://drpeterrobinson.github.io/posts/ros-wsl-docker-sim/</loc>
+    <lastmod>2023-12-20T11:44:29+00:00</lastmod>
+  </url><url>
+    <loc>https://drpeterrobinson.github.io/categories/</loc>
+  </url><url>
+    <loc>https://drpeterrobinson.github.io/tags/</loc>
   </url>
 </urlset>

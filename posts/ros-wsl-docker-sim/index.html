@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>ROS, Docker and WSL | Vaguely Interesting</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="ROS1 is not very well supported in Windows, but it is very useful to be able to do robot simulation on a desktop PC even when Linux systems are not available. The best way I&rsquo;ve found to do this is by combining the power of WSL2 (the Windows Subsystem for Linux) and Docker containers to run allow ROS to run in Linux with minimal overhead. It&rsquo;s even possible to run the graphical applications such as Gazebo and RViz for simulation purposes.">
+    <meta name="generator" content="Hugo 0.119.0">
+    
+    
+    
+    
+      <meta name="robots" content="noindex, nofollow">
+    
+
+    
+<link rel="stylesheet" href="/ananke/css/main.min.css" >
+
+
+
+    
+
+    
+      
+
+    
+
+    
+
+    
+      <link rel="canonical" href="https://drpeterrobinson.github.io/posts/ros-wsl-docker-sim/">
+    
+
+    <meta property="og:title" content="ROS, Docker and WSL" />
+<meta property="og:description" content="ROS1 is not very well supported in Windows, but it is very useful to be able to do robot simulation on a desktop PC even when Linux systems are not available. The best way I&rsquo;ve found to do this is by combining the power of WSL2 (the Windows Subsystem for Linux) and Docker containers to run allow ROS to run in Linux with minimal overhead. It&rsquo;s even possible to run the graphical applications such as Gazebo and RViz for simulation purposes." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://drpeterrobinson.github.io/posts/ros-wsl-docker-sim/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-12-20T11:44:29+00:00" />
+<meta property="article:modified_time" content="2023-12-20T11:44:29+00:00" />
+<meta itemprop="name" content="ROS, Docker and WSL">
+<meta itemprop="description" content="ROS1 is not very well supported in Windows, but it is very useful to be able to do robot simulation on a desktop PC even when Linux systems are not available. The best way I&rsquo;ve found to do this is by combining the power of WSL2 (the Windows Subsystem for Linux) and Docker containers to run allow ROS to run in Linux with minimal overhead. It&rsquo;s even possible to run the graphical applications such as Gazebo and RViz for simulation purposes."><meta itemprop="datePublished" content="2023-12-20T11:44:29+00:00" />
+<meta itemprop="dateModified" content="2023-12-20T11:44:29+00:00" />
+<meta itemprop="wordCount" content="1495">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="ROS, Docker and WSL"/>
+<meta name="twitter:description" content="ROS1 is not very well supported in Windows, but it is very useful to be able to do robot simulation on a desktop PC even when Linux systems are not available. The best way I&rsquo;ve found to do this is by combining the power of WSL2 (the Windows Subsystem for Linux) and Docker containers to run allow ROS to run in Linux with minimal overhead. It&rsquo;s even possible to run the graphical applications such as Gazebo and RViz for simulation purposes."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Vaguely Interesting
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+<div class="ananke-socials">
+  
+</div>
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked ttu">
+          
+        Posts
+      </aside>
+      
+
+
+
+
+
+
+
+
+
+
+  <div id="sharing" class="mt3 ananke-socials">
+    
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">ROS, Docker and WSL</h1>
+      
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2023-12-20T11:44:29Z">December 20, 2023</time>
+      
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links mid-gray pr4-l w-two-thirds-l"><p>ROS1 is not very well supported in Windows, but it is very useful to be able to do robot simulation on a desktop PC even when Linux systems are not available.  The best way I&rsquo;ve found to do this is by combining the power of WSL2 (the Windows Subsystem for Linux) and Docker containers to run allow ROS to run in Linux with minimal overhead.  It&rsquo;s even possible to run the graphical applications such as Gazebo and RViz for simulation purposes.  The setup is a little long-winded, so I&rsquo;ve written it down in the hope it might help somebody (probably me, as I tend to forget these things).</p>
+<h2 id="getting-started">Getting started</h2>
+<p>First, make sure WSL2 is installed on your Windows PC.  If you don&rsquo;t know, open up a terminal and execute</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>wsl -l -v
+</span></span></code></pre></div><p>which should come back with something like this (not with the same names):</p>
+<pre tabindex="0"><code>  NAME                   STATE           VERSION
+* Ubuntu-20.04           Stopped         2
+  docker-desktop-data    Stopped         2
+  docker-desktop         Stopped         2
+</code></pre><p>If it doesn&rsquo;t recognise the <code>wsl</code> command, then WSL is not installed.  If the &ldquo;VERSION&rdquo; column only has &lsquo;1&rsquo;s in it, then you may need to update to WSL2 from WSL.</p>
+<p>The <a href="https://learn.microsoft.com/en-us/windows/wsl/install">installation instructions from Microsoft</a> walk you through it.  You&rsquo;ll need admin rights to do the install.</p>
+<p>To set the default version to WSL 1 or WSL 2 when a new Linux distribution is installed, use the command:</p>
+<pre tabindex="0"><code>wsl --set-default-version &lt;Version#&gt;
+</code></pre><p>replacing <code>&lt;Version#&gt;</code> with either 1 or 2.</p>
+<p>If you&rsquo;ve had WSL installed for a while, it might be worth doing <code>wsl --update</code> and then restarting it after <code>wsl --shutdown</code>.  This is because the most recent iteration has the ability to run linux GUI applications <em>without any other software</em> and at time of writing this was quite new.  And also rather gobsmacking.  Sadly, it doesn&rsquo;t work directly with Docker images, because it requires a modified linux distribution.  But there&rsquo;s another way, as we will see.</p>
+<h2 id="install-an-x-server">Install an X server</h2>
+<p>To use GUI apps running in Docker containers, the host PC needs to be running an X server.  There are several to choose from.  The one I use is <a href="https://sourceforge.net/projects/vcxsrv/">VcXsrv</a>, which is free and does a pretty good job.  This will need to be running on your host PC if you wnt to use a GUI app from a Docker container.</p>
+<h2 id="make-sure-git-is-installed">Make sure Git is installed</h2>
+<p>I don&rsquo;t need to remind you of this.</p>
+<h2 id="make-sure-visual-studio-code-is-installed">Make sure Visual Studio Code is installed</h2>
+<p>You should also add the Git extension and the Docker extension</p>
+<h2 id="make-sure-docker-desktop-is-installed">Make sure Docker Desktop is installed</h2>
+<p>You don&rsquo;t have to use Docker to work with ROS on WSL, but it offers some benefits.  Most notably, you can create separate docker images for ROS1, ROS2, and different OS/version combinations of those.  You can install device-specific libraries and versions of libraries without messing up your global installation.  And you can share effective installations with other people.  It&rsquo;s worth the effort.</p>
+<p>You don&rsquo;t need to use Docker Desktop, either.  If you&rsquo;re happy with command line docker, that&rsquo;s fine.  I like the convenience of the GUI app.</p>
+<p>You can get Docker Desktop from their website <a href="https://www.docker.com/products/docker-desktop/">https://www.docker.com/products/docker-desktop/</a>.  They&rsquo;ll suggest you sign up for an account, but you don&rsquo;t need to.  You can use the <a href="https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe">direct download link</a> if you wish.</p>
+<h3 id="create-the-base-docker-image">Create the base Docker image</h3>
+<p>Create the base docker image using the docker file:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span><span style="color:#e6db74"> osrf/ros:noetic-desktop</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> apt-get update<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> apt-get install -y git <span style="color:#f92672">&amp;&amp;</span> apt-get install -y python3-pip<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> apt-get install -y ros-noetic-ros-control <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    apt-get install -y ros-noetic-ros-controllers <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    apt-get install -y ros-noetic-gazebo-ros-control <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    apt-get install -y ros-noetic-joint-state-publisher-gui <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    apt-get install -y ros-noetic-rqt-robot-steering<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> mkdir -p /root/limo_ws/src <span style="color:#f92672">&amp;&amp;</span> cd /root/limo_ws/src <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    git clone https://github.com/limo-agx/limo.git <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    git clone https://github.com/limo-agx/limo_desktop.git <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    git clone https://github.com/limo-agx/limo_simulator.git <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\ </span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span>    cd /root/limo_ws <span style="color:#f92672">&amp;&amp;</span><span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    rosdep install --from-paths src --ignore-src -r -y<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">SHELL</span> [<span style="color:#e6db74">&#34;/bin/bash&#34;</span>, <span style="color:#e6db74">&#34;-c&#34;</span>]<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> cd /root/limo_ws <span style="color:#f92672">&amp;&amp;</span><span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    source /opt/ros/noetic/setup.bash <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    catkin_make <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    echo <span style="color:#e6db74">&#34;source /opt/ros/noetic/setup.bash&#34;</span> &gt;&gt; ~/.bashrc<span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>Build the docker volume (this will take some time):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>docker build . --tag=robots/r1_noetic_limo_sim
+</span></span></code></pre></div><p>Then create the <code>compose.yaml</code> file:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">services</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">app</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">container_name</span>: <span style="color:#ae81ff">r1_limo_n</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">image</span>: <span style="color:#ae81ff">robots/r1_noetic_limo_sim:latest</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">stdin_open</span>: <span style="color:#66d9ef">true</span> <span style="color:#75715e"># docker run -i</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">tty</span>: <span style="color:#66d9ef">true</span>        <span style="color:#75715e"># docker run -t</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">environment</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#ae81ff">DISPLAY=host.docker.internal:0.0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">volumes</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#ae81ff">test-volume:/root/test</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">volumes</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">test-volume</span>:
+</span></span></code></pre></div><p><code>docker-compose up</code> will start the container.  It will also create a new docker volume, mounted at /root/test in the container&rsquo;s filesystem.  Changes to the contents of this volume will persist between sessions (and can be shared amongst containers) whereas changes to the filesystem of the container itself will be lost as soon as it shuts down.  The volume is therefore the sensible place to put development files.</p>
+<h2 id="developing-code-in-the-docker-volume">Developing code in the docker volume</h2>
+<p>Although Docker volumes are stored locally on the computer, It is not easy to access the files inside them.  When they are mounted in a docker container, volumes appear as part of the container&rsquo;s file system and any applications which would normally access the file system can read or write them.  This means that one way to edit the files within a volume is to use editing tools in the container.  As we&rsquo;ve seen it is possible to run GUI applications from within a container, so a text editor like gEdit will work perfectly well for this purpose.</p>
+<p>However, there is a better solution. Microsoft&rsquo;s Visual Studio Code editor has an <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">extension</a> which enables it to edit files within a docker volume as if they were files hosted in the local file system.  This makes it a very appealing way to edit files that are inside a container even while the container is running.  It also makes it easier to manage those files through source controls such as Github because they are treated as local files rather than files in the container and so VS Code manages the required SSH authentication. It becomes much more problematic to operate SSH within a container, because the required keys must be stored as part of the image (and will therefore be shared if the image is, which is a security concern).</p>
+<h3 id="procedure-for-setting-up-new-development-in-the-volume">Procedure for setting up new development in the volume</h3>
+<p>Set up a new repository on Github, and make sure it creates a <code>.gitignore</code> file with a ROS template.  Clone it to a local folder on the host machine (this is only temporary).  I&rsquo;ll assume this is called <code>Ros1Test</code> for the time being.  You&rsquo;ll use this later.</p>
+<p>Make sure that the volume has been created by your <code>docker compose up</code> command.  You can check this in the Docker Desktop app, or from the command line using <code>docker volume list</code> which will probably report something like</p>
+<pre tabindex="0"><code>DRIVER    VOLUME NAME
+local     docker_test-volume
+local     ros-connect-four
+local     vscode
+</code></pre><p><code>docker_test-volume</code> is the one we defined in the <code>compose.yaml</code> file, so it&rsquo;s definitely there!</p>
+<p>Now fire up Visual Studio Code, and make sure you&rsquo;ve got the Docker extension installed.  Click on the little whale icon, and you&rsquo;ll be offered something like this:</p>
+<p><img src="/images/vscode-docker-volumes.png" alt="VS Code files!200"></p>
+<p>Right-clicking on the <code>docker_test-volume</code> and selecting &rsquo;explore in a dev container&rsquo; menu item will start a new container and open this volume up as a file system in it.  You can then edit the files as if they were on the local filesystem.  It&rsquo;ll be empty to begin with.  Now we need to set this up so that it&rsquo;s under source control, and is configured as a catkin workspace for ROS development.  This is the slightly clunky part, because some of it is done in Windows, and some on the command line in the container.</p>
+<p>Now, use drag and drop from Windows Explorer to copy all the files (including the hidden <code>.git</code> folder) from the cloned Ros1Test repository you made earlier to the volume in VS Code.  If you didn&rsquo;t create an appropriate <code>.gitignore</code> file at the same time as the repository, now would be a good time to do that, before we start adding more files.</p>
+<p><a href="/docs/ros-gitignore.txt">Here&rsquo;s</a> a sample <code>.gitignore</code> for ROS1.</p>
+<p>Now you can switch back to your container, and do some command line stuff to set up the ROS workspace.  As you do this, you will see files appearing in the volume in Visual Studio Code, because both containers are using the same volume for persistent storage.</p>
+<pre tabindex="0"><code>cd /root/test
+mkdir src
+source /opt/ros/noetic/setup.bash
+catkin_make
+</code></pre><p>If all is well, this should result in the creation of a number of files and folders, almost all of which will be ignored by source control.  You might think that the <code>CMakeLists.txt</code> file should be added to git, but this is not a good idea.  It&rsquo;s actually a symbolic link created by catkin, and its references will not survive source control.  It will be recreated by catkin as needed in any case.</p>
+<p>Now you should be able to use VS code to commit and push your source code.  Further development (for example the <a href="https://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28python%29">ROS Tutorials</a>) can be done from the command line and/or through VS code.  Just remember that while commits can be done from the command line in the container ,pushes can only be done from VS Code (because of the SSH issue).</p>
+<p>Next: simple <a href="/posts/ros1-docker-tutorial/">ROS tutorial using containers</a></p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
+
+    <aside class="w-30-l mt6-l">
+
+
+
+
+</aside>
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://drpeterrobinson.github.io/" >
+    &copy;  Vaguely Interesting 2023 
+  </a>
+    <div>
+<div class="ananke-socials">
+  
+</div>
+</div>
+  </div>
+</footer>
+
+  </body>
+</html>
